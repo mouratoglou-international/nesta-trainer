@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NESTAトレーニングプログラムデザイナー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0f11;
+      --surface: #16181c;
+      --surface2: #1e2026;
+      --surface3: #252830;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --text: #f0f1f3;
+      --text2: #9a9ea8;
+      --text3: #5c6070;
+      --accent: #4f8ef7;
+      --accent2: #7c5fe8;
+      --green: #39c98a;
+      --amber: #f0a742;
+      --coral: #e8604a;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── layout ── */
+    .page-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 6rem;
+    }
+
+    /* ── header ── */
+    .header {
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s ease both;
+    }
+    .header-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+    .header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.7;
+      max-width: 520px;
+    }
+
+    /* ── tabs ── */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 5px;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text2);
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .tab svg { opacity: 0.7; }
+    .tab.active {
+      background: var(--surface3);
+      color: var(--text);
+    }
+    .tab.active svg { opacity: 1; }
+
+    /* ── section ── */
+    .section { display: none; animation: fadeUp 0.3s ease both; }
+    .section.active { display: block; }
+
+    /* ── card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 1rem;
+    }
+
+    /* ── form ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+    .form-row.trio { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 520px) {
+      .form-row, .form-row.trio { grid-template-columns: 1fr; }
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 12px;
+      color: var(--text3);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .field select,
+    .field input[type="number"] {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 9px 12px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field select:focus,
+    .field input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235c6070' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+    .field input::placeholder { color: var(--text3); }
+
+    /* ── metrics grid ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 1rem; }
+    .metric {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .metric-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+    .metric-value { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1.1; }
+    .metric-value.md { font-size: 15px; font-weight: 500; }
+    .metric-unit { font-size: 11px; font-weight: 400; color: var(--text2); margin-left: 2px; }
+
+    /* ── badge ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .badge-blue  { background: rgba(79,142,247,0.12); color: #6ea6ff; border: 1px solid rgba(79,142,247,0.25); }
+    .badge-purple{ background: rgba(124,95,232,0.12); color: #9f87f5; border: 1px solid rgba(124,95,232,0.25); }
+    .badge-green { background: rgba(57,201,138,0.12); color: #4ed89b; border: 1px solid rgba(57,201,138,0.25); }
+    .badge-amber { background: rgba(240,167,66,0.12); color: #f5be67; border: 1px solid rgba(240,167,66,0.25); }
+    .badge-coral { background: rgba(232,96,74,0.12); color: #f08272; border: 1px solid rgba(232,96,74,0.25); }
+
+    /* ── freq list ── */
+    .freq-list { display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; }
+    .freq-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color 0.2s;
+    }
+    .freq-item.active-level {
+      border-color: var(--accent);
+      background: rgba(79,142,247,0.05);
+    }
+    .freq-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border2);
+      flex-shrink: 0;
+    }
+    .freq-item.active-level .freq-dot { background: var(--accent); }
+    .freq-main { font-size: 14px; font-weight: 500; color: var(--text); }
+    .freq-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .you-tag {
+      margin-left: auto;
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* ── note ── */
+    .note {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.7;
+      padding: 10px 14px;
+      border-left: 2px solid var(--border2);
+      margin-top: 1rem;
+    }
+
+    /* ── hr zones ── */
+    .zone-list { display: flex; flex-direction: column; gap: 0; margin-top: 1rem; }
+    .zone-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .zone-row:last-child { border-bottom: none; }
+    .zone-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .zone-name { flex: 1; font-size: 13px; color: var(--text2); }
+    .zone-pct { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-right: 8px; }
+    .zone-bpm { font-size: 14px; font-weight: 500; color: var(--text); font-family: var(--mono); }
+
+    /* ── formula box ── */
+    .formula {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text2);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 1rem;
+      line-height: 1.8;
+    }
+    .formula .hl { color: var(--accent); }
+
+    /* ── divider ── */
+    .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+    /* ── placeholder ── */
+    .placeholder {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text3);
+      font-size: 13px;
+    }
+
+    /* ── footer ── */
+    .footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text3);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    /* ── animation ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Header -->
+  <header class="header">
+    <p class="header-eyebrow">NESTA Certified</p>
+    <h1>トレーニングプログラム<br>デザイナー</h1>
+    <p>目標・レベルに応じた強度と頻度を、NESTAのガイドラインに基づき自動で設定します。</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('resistance')" aria-pressed="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9h4M18 9h4M2 15h4M18 15h4M6 12h12"/></svg>
+      レジスタンス
+    </button>
+    <button class="tab" onclick="switchTab('cardio')" aria-pressed="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      カーディオ
+    </button>
+  </div>
+
+  <!-- ========== Resistance ========== -->
+  <div id="resistance" class="section active">
+
+    <div class="card">
+      <p class="card-label">トレーニング設定</p>
+      <div class="form-row">
+        <div class="field">
+          <label>目的</label>
+          <select id="res-goal" onchange="calcResistance()">
+            <option value="strength">最大筋力向上（Strength）</option>
+            <option value="hypertrophy">筋肥大（Hypertrophy）</option>
+            <option value="endurance">筋持久力向上（Endurance）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>経験レベル</label>
+          <select id="res-level" onchange="calcResistance()">
+            <option value="beginner">初級者（6か月未満）</option>
+            <option value="intermediate">中級者（1年未満）</option>
+            <option value="advanced">上級者（1年以上）</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row" style="grid-template-columns:1fr 1fr; align-items:end;">
+        <div class="field">
+          <label>1RM（最大重量 kg）— 任意</label>
+          <input type="number" id="one-rm" placeholder="例: 100" min="1" oninput="calcResistance()" />
+        </div>
+        <div style="font-size:12px; color:var(--text3); line-height:1.6; padding-bottom:2px;">入力すると使用重量の目安が計算されます。</div>
+      </div>
+    </div>
+
+    <div id="resistance-results"></div>
+
+  </div>
+
+  <!-- ========== Cardio ========== -->
+  <div id="cardio" class="section">
+
+    <div class="card">
+      <p class="card-label">プロフィール設定</p>
+      <div class="form-row">
+        <div class="field">
+          <label>年齢</label>
+          <input type="number" id="age" placeholder="例: 30" min="10" max="90" oninput="calcCardio()" />
+        </div>
+        <div class="field">
+          <label>安静時心拍数（bpm）</label>
+          <input type="number" id="rhr" placeholder="例: 60" min="30" max="100" oninput="calcCardio()" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>目的</label>
+          <select id="cardio-goal" onchange="calcCardio()">
+            <option value="health">健康維持・一般的な運動</option>
+            <option value="performance">心肺機能向上・VO2max改善</option>
+            <option value="weightloss">糖代謝改善・血圧低下・減量</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>レベル</label>
+          <select id="cardio-level" onchange="calcCardio()">
+            <option value="beginner">初級者・一般健康維持</option>
+            <option value="advanced">中〜上級者・心肺機能向上</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="cardio-results"></div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>NESTAガイドライン（FITTR原則 / カルボーネン法）に基づいて算出しています。</p>
+    <p>本ツールは参考情報の提供を目的としており、医療的アドバイスに代わるものではありません。</p>
+  </footer>
+
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────
+
+const RES_DATA = {
+  strength: {
+    label: '最大筋力向上（Strength）',
+    badge: 'badge-blue',
+    intensity: '85%1RM以上（高強度）',
+    reps: '1〜6回',
+    sets: '2〜6セット',
+    rest: '2〜5分',
+    rmRange: [0.85, 1.0],
+    note: '高強度トレーニングでは中枢神経系の疲労が大きく蓄積します。セット間インターバルを十分に確保し、フォームの崩れを防ぐことが最優先です。'
+  },
+  hypertrophy: {
+    label: '筋肥大（Hypertrophy）',
+    badge: 'badge-purple',
+    intensity: '67〜85%1RM（中〜高強度）',
+    reps: '6〜12回',
+    sets: '3〜6セット',
+    rest: '30秒〜1.5分',
+    rmRange: [0.67, 0.85],
+    note: '筋肥大には代謝ストレスと筋損傷の両方が重要です。短めのインターバルで乳酸を蓄積させるアプローチが効果的です。'
+  },
+  endurance: {
+    label: '筋持久力向上（Endurance）',
+    badge: 'badge-green',
+    intensity: '67%1RM未満（低強度）',
+    reps: '12回以上',
+    sets: '2〜3セット',
+    rest: '30秒以下',
+    rmRange: [0.50, 0.67],
+    note: '持久力向上には高反復・短インターバルが有効です。有酸素系エネルギー供給を高め、スポーツパフォーマンス向上にも繋がります。'
+  }
+};
+
+const FREQ_DATA = {
+  beginner:     { days: '週2〜3回', routine: '全身を網羅するルーティン（Full Body）' },
+  intermediate: { days: '週3〜4回', routine: '上半身・下半身の分割ルーティン（Upper/Lower Split）' },
+  advanced:     { days: '週4〜6回', routine: '部位別の細かい分割法（Push / Pull / Legs 等）' }
+};
+
+const CARDIO_DATA = {
+  health:      { label: '健康維持・一般的な運動', freqMin: '週2回以上', freqIdeal: '週2〜3回' },
+  performance: { label: '心肺機能向上・VO2max改善', freqMin: '週2回以上', freqIdeal: '週3〜4回' },
+  weightloss:  { label: '糖代謝改善・血圧低下・減量', freqMin: '週3回以上', freqIdeal: '週3〜5回（理想）' }
+};
+
+const CARDIO_INTENSITY = {
+  beginner: { pct: '最大心拍数の50〜70%', rpe: 'RPE 11〜13（やや楽〜ややきつい）', range: [0.50, 0.70] },
+  advanced: { pct: '最大心拍数の70〜85%', rpe: 'RPE 14〜16（きつい）', range: [0.70, 0.85] }
+};
+
+const ZONES = [
+  { name: 'ウォームアップゾーン', pct: '50〜60% HRR', lo: 0.50, hi: 0.60, color: '#39c98a' },
+  { name: '脂肪燃焼ゾーン',       pct: '60〜70% HRR', lo: 0.60, hi: 0.70, color: '#4f8ef7' },
+  { name: '有酸素ゾーン',         pct: '70〜80% HRR', lo: 0.70, hi: 0.80, color: '#f0a742' },
+  { name: '無酸素閾値付近',       pct: '80〜85% HRR', lo: 0.80, hi: 0.85, color: '#e8604a' }
+];
+
+// ── Tab switch ────────────────────────────────────────────────────────────
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const isActive = ['resistance', 'cardio'][i] === tab;
+    t.classList.toggle('active', isActive);
+    t.setAttribute('aria-pressed', isActive);
+  });
+  document.querySelectorAll('.section').forEach(s => {
+    s.classList.toggle('active', s.id === tab);
+  });
+}
+
+// ── Resistance ────────────────────────────────────────────────────────────
+
+function calcResistance() {
+  const goal  = document.getElementById('res-goal').value;
+  const level = document.getElementById('res-level').value;
+  const oneRM = parseFloat(document.getElementById('one-rm').value);
+  const d = RES_DATA[goal];
+
+  // Weight metric
+  let rmMetric = '';
+  if (!isNaN(oneRM) && oneRM > 0) {
+    const lo = Math.round(oneRM * d.rmRange[0]);
+    const hi = Math.round(oneRM * d.rmRange[1]);
+    rmMetric = `
+      <div class="metric">
+        <div class="metric-label">使用重量の目安</div>
+        <div class="metric-value">${lo}〜${hi}<span class="metric-unit">kg</span></div>
+      </div>`;
+  }
+
+  // Frequency rows
+  const freqRows = ['beginner', 'intermediate', 'advanced'].map(lv => {
+    const f = FREQ_DATA[lv];
+    const isMe = lv === level;
+    return `
+      <div class="freq-item${isMe ? ' active-level' : ''}">
+        <div class="freq-dot"></div>
+        <div>
+          <div class="freq-main">${f.days}</div>
+          <div class="freq-sub">${f.routine}</div>
+        </div>
+        ${isMe ? '<span class="you-tag">← あなた</span>' : ''}
+      </div>`;
+  }).join('');
+
+  document.getElementById('resistance-results').innerHTML = `
+    <div class="card" style="animation:fadeUp 0.25s ease both">
+      <p class="card-label">強度・回数・セット数</p>
+      <span class="badge ${d.badge}">${d.label}</span>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">強度（負荷）</div>
+          <div class="metric-value md">${d.intensity}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">反復回数</div>
+          <div class="metric-value">${d.reps}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">セット数</div>
+          <div class="metric-value">${d.sets}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">インターバル</div>
+          <div class="metric-value md">${d.rest}</div>
+        </div>
+        ${rmMetric}
+      </div>
+      <p class="note">${d.note}</p>
+    </div>
+
+    <div class="card" style="animation:fadeUp 0.3s 0.05s ease both">
+      <p class="card-label">推奨頻度（週あたりの日数）</p>
+      <div class="freq-list">${freqRows}</div>
+      <p class="note">筋肉の回復には通常48〜72時間が必要です。同じ部位を連日鍛えず、適切な休息を確保してください。NESTAでは「個別化の原則」に基づき、全員に同じ高強度・高頻度を課さないことが推奨されます。</p>
+    </div>
+  `;
+}
+
+// ── Cardio ────────────────────────────────────────────────────────────────
+
+function calcCardio() {
+  const age   = parseInt(document.getElementById('age').value);
+  const rhr   = parseInt(document.getElementById('rhr').value);
+  const goal  = document.getElementById('cardio-goal').value;
+  const level = document.getElementById('cardio-level').value;
+
+  const d  = CARDIO_DATA[goal];
+  const ci = CARDIO_INTENSITY[level];
+  const badgeClass = level === 'beginner' ? 'badge-amber' : 'badge-coral';
+  const levelLabel = level === 'beginner' ? '初級者・一般健康維持' : '中〜上級者・心肺機能向上';
+
+  const hasInputs = !isNaN(age) && !isNaN(rhr) && age > 0 && rhr > 0;
+
+  let hrSection = '';
+  let formulaSection = '';
+
+  if (hasInputs) {
+    const hrMax    = 220 - age;
+    const hrReserve = hrMax - rhr;
+    const [loR, hiR] = ci.range;
+    const loHR = Math.round(loR * hrReserve + rhr);
+    const hiHR = Math.round(hiR * hrReserve + rhr);
+
+    const zoneRows = ZONES.map(z => {
+      const zLo = Math.round(z.lo * hrReserve + rhr);
+      const zHi = Math.round(z.hi * hrReserve + rhr);
+      return `
+        <div class="zone-row">
+          <span class="zone-color" style="background:${z.color};"></span>
+          <span class="zone-name">${z.name}</span>
+          <span class="zone-pct">${z.pct}</span>
+          <span class="zone-bpm">${zLo}〜${zHi} bpm</span>
+        </div>`;
+    }).join('');
+
+    hrSection = `
+      <div class="card" style="animation:fadeUp 0.3s 0.05s ease both">
+        <p class="card-label">目標心拍数（カルボーネン法）</p>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">最大心拍数（推定）</div>
+            <div class="metric-value">${hrMax}<span class="metric-unit">bpm</span></div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">心拍予備量（HRR）</div>
+            <div class="metric-value">${hrReserve}<span class="metric-unit">bpm</span></div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">目標ゾーン</div>
+            <div class="metric-value">${loHR}〜${hiHR}<span class="metric-unit">bpm</span></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="card-label">心拍数ゾーン一覧（${age}歳 / 安静時 ${rhr} bpm）</p>
+        <div class="zone-list">${zoneRows}</div>
+        <div class="formula">
+          <span class="hl">目標HR</span> ＝ 強度 × (最大HR − 安静時HR) ＋ 安静時HR<br>
+          最大HR ＝ 220 − ${age} ＝ <span class="hl">${hrMax} bpm</span>　　
+          HRR ＝ ${hrMax} − ${rhr} ＝ <span class="hl">${hrReserve} bpm</span>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('cardio-results').innerHTML = `
+    <div class="card" style="animation:fadeUp 0.25s ease both">
+      <p class="card-label">強度・頻度の設定</p>
+      <span class="badge ${badgeClass}">${levelLabel}</span>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">強度ゾーン</div>
+          <div class="metric-value md">${ci.pct}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">主観的運動強度（RPE）</div>
+          <div class="metric-value md">${ci.rpe}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">最低頻度</div>
+          <div class="metric-value md">${d.freqMin}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">理想の頻度</div>
+          <div class="metric-value md">${d.freqIdeal}</div>
+        </div>
+      </div>
+      <p class="note">目的：${d.label}。NESTAのFITTR原則（頻度・強度・時間・タイプ・進行度）に基づき、最初は低〜中強度から始め、4〜6週ごとに段階的に負荷を上げることを推奨します。</p>
+    </div>
+
+    ${hasInputs ? hrSection : `
+    <div class="card" style="animation:fadeUp 0.3s 0.05s ease both">
+      <p class="placeholder">年齢と安静時心拍数を入力すると、<br>カルボーネン法による心拍数ゾーンが表示されます。</p>
+    </div>`}
+  `;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+calcResistance();
+calcCardio();
+</script>
+</body>
+</html>
